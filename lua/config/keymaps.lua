@@ -125,10 +125,10 @@ end
 
 
 -- Mappings: leader+fs -> &str getter, leader+fi -> i64 getter
-km('n', '<leader>fstr', function() insert_getter_replacing_line("&str", "&self.%s") end, { noremap = false, silent = true })
-km('n', '<leader>fint', insert_int_getter_from_line, { noremap = false, silent = true })
-km('n', '<leader>tstr', function() insert_setter_replacing_line("&str", "self.%s = value.to_string();") end, { noremap = false, silent = true})
-km('n', '<leader>tint', insert_int_setter_from_line, { noremap = false, silent = true})
+km('n', '<leader>fgs', function() insert_getter_replacing_line("&str", "&self.%s") end, { noremap = false, silent = true, desc = "get &str" })
+km('n', '<leader>fgi', insert_int_getter_from_line, { noremap = false, silent = true, desc = "get integer/same format" })
+km('n', '<leader>fss', function() insert_setter_replacing_line("&str", "self.%s = value.to_string();") end, { noremap = false, silent = true, desc = "insert &str"})
+km('n', '<leader>fsi', insert_int_setter_from_line, { noremap = false, silent = true, desc = "insert integer/same format"})
 
 
 -- Macros Example down below
