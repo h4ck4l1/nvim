@@ -6,7 +6,8 @@ local opt = vim.opt
 
 opt.expandtab = false
 opt.tabstop = 4
-opt.shiftwidth = 0
-opt.softtabstop = 1
+opt.shiftwidth = 4    -- 0 previous
+opt.softtabstop = 4   -- 1 previous
 opt.autoindent = true
 vim.g.autoformat = false
+vim.g.minipairs_disable = true
