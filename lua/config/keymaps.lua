@@ -146,3 +146,11 @@ km(
   '0w"ayiwipub<space>fn<space>insert_<Esc>f:i(&mut self, <Esc>"apa<Esc>f<w"byiwF:lD"bpa) -> &mut Self {<Esc>oself.<Esc>"apa.push(<Esc>"apa);<Esc>oself<Esc>o}<Esc>j',
   {noremap = true, silent = true}
 )
+
+
+km('n', '<leader>vv', function ()
+	require('telescope.builtin').lsp_document_symbols({
+		symbols = {"Variable", "Constant", "Field"}
+	})
+end, {desc = "Document Variables"})
+
