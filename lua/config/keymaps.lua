@@ -1,7 +1,7 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
---
+-- Remove the trailing characters by just doing :%s/\r//g
 --
 
 local km = vim.keymap.set
@@ -192,7 +192,111 @@ km({'v'}, '<leader>ya', function()
   vim.fn.setreg('a', table.concat(lines, "\n"), 'l')
 end, { noremap = true, silent = true, desc = "Yank every other line from visual selection into register a" })
 
+-- fallback detect_int_type only if you don't already define one in your config
+if not detect_int_type then
+  function detect_int_type()
+    local line = vim.api.nvim_get_current_line()
+    local t = line:match('([iu]%d+)')
+    if t and t ~= "" then return t end
+    local cw = vim.fn.expand('<cword>')
+    t = cw:match('([iu]%d+)')
+    if t and t ~= "" then return t end
+    return "i64"
+  end
+end
 
+local function trim(s) return (s or ""):match("^%s*(.-)%s*$") end
 
+local function is_integer_type(t)
+  if not t then return false end
+  t = trim(t)
+  if t:match("^[iu]%d+$") then return true end
+  if t == "isize" or t == "usize" then return true end
+  return false
+end
 
+local function generate_rust_getter()
+  local line = vim.api.nvim_get_current_line()
+  local cur = vim.api.nvim_win_get_cursor(0) -- {row, col}
+  local row = cur[1] - 1 -- 0-indexed for buffer ops
 
+  -- parse "name: type," allowing underscores and whitespace
+  local name, raw_type = line:match("^%s*([%w_]+)%s*:%s*(.-)%s*,?%s*$")
+  if not name or not raw_type or raw_type == "" then
+    vim.notify("Could not parse a field declaration on this line.", vim.log.levels.WARN)
+    return
+  end
+  raw_type = trim(raw_type)
+
+  -- detect Option<Inner> or plain type
+  local inner = raw_type:match("^Option%s*<%s*(.-)%s*>$")
+  local is_option = inner ~= nil
+  if is_option then inner = trim(inner) end
+
+  if is_option and (inner == "" or not inner) then
+    inner = detect_int_type()
+  end
+  if not is_option and (raw_type == "" or not raw_type) then
+    raw_type = detect_int_type()
+  end
+
+  local indent = line:match("^(%s*)") or ""
+  local fn_indent = indent .. "    "
+
+  local fn_name = "get_" .. name
+  local ret_type, body_line
+
+  if is_option then
+    if is_integer_type(inner) then
+      ret_type = "Option<" .. inner .. ">"
+      body_line = "self." .. name
+    elseif inner == "String" then
+      ret_type = "Option<&String>"
+      body_line = "self." .. name .. ".as_ref()"
+    else
+      ret_type = "Option<&" .. inner .. ">"
+      body_line = "self." .. name .. ".as_ref()"
+    end
+  else
+    local t = raw_type
+    if is_integer_type(t) then
+      ret_type = t
+      body_line = "self." .. name
+    elseif t == "String" then
+      ret_type = "&String"
+      body_line = "&self." .. name
+    else
+      ret_type = "&" .. t
+      body_line = "&self." .. name
+    end
+  end
+
+  -- assemble function (replace the original field line with these lines)
+  local lines = {
+    indent .. "pub fn " .. fn_name .. "(&self) -> " .. ret_type .. " {",
+    fn_indent .. body_line,
+    indent .. "}"
+  }
+
+  -- replace current line (row .. row+1) with function lines
+  vim.api.nvim_buf_set_lines(0, row, row + 1, false, lines)
+
+  -- compute target row (line immediately after final '}'), 0-indexed
+  local target_row = row + #lines
+
+  -- ensure there is at least one line after the inserted function; if not, append a blank line
+  local line_count = vim.api.nvim_buf_line_count(0)
+  if target_row >= line_count then
+    vim.api.nvim_buf_set_lines(0, line_count, line_count, false, {""})
+    line_count = vim.api.nvim_buf_line_count(0)
+  end
+
+  -- put the cursor at the first column of the line after the function
+  vim.api.nvim_win_set_cursor(0, { target_row + 1, 0 })
+
+  vim.notify("Replaced field with getter '" .. fn_name .. "' -> " .. ret_type, vim.log.levels.INFO)
+end
+
+-- mapping (normal mode): <leader>rg to generate getter from current line
+km({'n'}, '<leader>rg', function() generate_rust_getter() end,
+  { noremap = true, silent = true, desc = "Generate Rust getter from field declaration (replace line)" })
