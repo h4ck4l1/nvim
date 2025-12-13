@@ -123,7 +123,6 @@ local function insert_int_setter_from_line()
   insert_setter_replacing_line(ty, "self.%s = value;")
 end
 
-
 -- Mappings: leader+fs -> &str getter, leader+fi -> i64 getter
 km('n', '<leader>fgs', function() insert_getter_replacing_line("&str", "&self.%s") end, { noremap = false, silent = true, desc = "get &str" })
 km('n', '<leader>fgi', insert_int_getter_from_line, { noremap = false, silent = true, desc = "get integer/same format" })
@@ -147,10 +146,38 @@ km(
   {noremap = true, silent = true}
 )
 
+km(
+	'n',
+	'<leader>fo',
+	'0f:wvt,cOption<<Esc>pa><Esc>j',
+	{ noremap = true, silent = true}
+)
+
 
 km('n', '<leader>vv', function ()
 	require('telescope.builtin').lsp_document_symbols({
 		symbols = {"Variable", "Constant", "Field"}
 	})
 end, {desc = "Document Variables"})
+
+
+km('n', '<leader>ya', function()
+  local lines = {}
+  local last = vim.api.nvim_buf_line_count(0)
+  for i = 1, last do
+    if i % 2 == 0 then
+      local l = vim.api.nvim_buf_get_lines(0, i-1, i, false)[1] or ""
+      table.insert(lines, l)
+    end
+  end
+
+  if #lines == 0 then
+    vim.notify("No lines found to yank", vim.log.levels.INFO)
+    return
+  end
+
+  -- Use linewise register so pastes keep line boundaries. Use 'a' or change to '+' for system clipboard.
+  vim.fn.setreg('a', table.concat(lines, "\n"), 'l')
+end, { noremap = true, silent = true, desc = "Yank every other (even) line into register a" })
+
 
