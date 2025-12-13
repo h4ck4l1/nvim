@@ -160,13 +160,25 @@ km('n', '<leader>vv', function ()
 	})
 end, {desc = "Document Variables"})
 
+-- Visual-mode only: yank every other line from the visual selection into register 'a'
+km({'v'}, '<leader>ya', function()
+  -- get visual selection start/end (getpos returns {bufnum, lnum, col, off})
+  local s_pos = vim.fn.getpos("'<")
+  local e_pos = vim.fn.getpos("'>")
+  local start_line = s_pos[2]
+  local end_line   = e_pos[2]
 
-km('n', '<leader>ya', function()
+  -- handle reverse selection
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+
   local lines = {}
-  local last = vim.api.nvim_buf_line_count(0)
-  for i = 1, last do
-    if i % 2 == 0 then
-      local l = vim.api.nvim_buf_get_lines(0, i-1, i, false)[1] or ""
+  for i = start_line, end_line do
+    -- choose every other line relative to the selection start:
+    -- keep 0 -> start_line, 2 -> start_line+2, etc.
+    if ((i - start_line) % 2) == 0 then
+      local l = vim.api.nvim_buf_get_lines(0, i - 1, i, false)[1] or ""
       table.insert(lines, l)
     end
   end
@@ -176,8 +188,11 @@ km('n', '<leader>ya', function()
     return
   end
 
-  -- Use linewise register so pastes keep line boundaries. Use 'a' or change to '+' for system clipboard.
+  -- 'l' makes the register linewise. Change 'a' to '+' to use system clipboard.
   vim.fn.setreg('a', table.concat(lines, "\n"), 'l')
-end, { noremap = true, silent = true, desc = "Yank every other (even) line into register a" })
+end, { noremap = true, silent = true, desc = "Yank every other line from visual selection into register a" })
+
+
+
 
 
