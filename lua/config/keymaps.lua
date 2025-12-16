@@ -160,36 +160,63 @@ km('n', '<leader>vv', function ()
 	})
 end, {desc = "Document Variables"})
 
+
+
 -- Visual-mode only: yank every other line from the visual selection into register 'a'
-km({'v'}, '<leader>ya', function()
-  -- get visual selection start/end (getpos returns {bufnum, lnum, col, off})
-  local s_pos = vim.fn.getpos("'<")
-  local e_pos = vim.fn.getpos("'>")
-  local start_line = s_pos[2]
-  local end_line   = e_pos[2]
+-- Yank every-other line from a visual selection into register 'a' (robust)
+vim.keymap.set('x', '<leader>ya', function()
+  -- check current mode (should be visual when invoked)
+  local mode = vim.fn.mode()
 
-  -- handle reverse selection
-  if start_line > end_line then
-    start_line, end_line = end_line, start_line
+  -- get selection endpoints in a way that works reliably in visual mode
+  -- vim.fn.line("v") returns the start of the visual selection,
+  -- vim.fn.line(".") returns the current cursor line (other end).
+  local s_line = tonumber(vim.fn.line("v")) or 0
+  local e_line = tonumber(vim.fn.line(".")) or 0
+
+  -- fallback: if those are not set, try marks (older approach)
+  if s_line == 0 or e_line == 0 then
+    local s_mark = vim.api.nvim_buf_get_mark(0, '<') -- {lnum, col}
+    local e_mark = vim.api.nvim_buf_get_mark(0, '>')
+    s_line = s_mark[1] or s_line
+    e_line = e_mark[1] or e_line
   end
 
-  local lines = {}
-  for i = start_line, end_line do
-    -- choose every other line relative to the selection start:
-    -- keep 0 -> start_line, 2 -> start_line+2, etc.
-    if ((i - start_line) % 2) == 0 then
-      local l = vim.api.nvim_buf_get_lines(0, i - 1, i, false)[1] or ""
-      table.insert(lines, l)
-    end
-  end
-
-  if #lines == 0 then
-    vim.notify("No lines found to yank", vim.log.levels.INFO)
+  if not s_line or s_line == 0 or not e_line or e_line == 0 then
+    vim.notify(("Selection not detected. mode=%s s_line=%s e_line=%s")
+               :format(mode, tostring(s_line), tostring(e_line)),
+               vim.log.levels.WARN)
     return
   end
 
-  -- 'l' makes the register linewise. Change 'a' to '+' to use system clipboard.
-  vim.fn.setreg('a', table.concat(lines, "\n"), 'l')
+  -- normalize order
+  if s_line > e_line then
+    s_line, e_line = e_line, s_line
+  end
+
+  -- fetch lines (end index is exclusive)
+  local lines = vim.api.nvim_buf_get_lines(0, s_line - 1, e_line, false)
+  if not lines or vim.tbl_isempty(lines) then
+    vim.notify(("No lines returned from buffer. s_line=%d e_line=%d"):format(s_line, e_line),
+               vim.log.levels.INFO)
+    return
+  end
+
+  -- pick every other line relative to selection start (1st, 3rd, ...)
+  local out = {}
+  for i = 1, #lines, 2 do
+    table.insert(out, lines[i] or "")
+  end
+
+  if #out == 0 then
+    vim.notify("No lines selected after filtering every-other.", vim.log.levels.INFO)
+    return
+  end
+
+  -- put into register 'a' as linewise
+  vim.fn.setreg('a', table.concat(out, "\n"), 'V')
+  vim.notify(string.format("Yanked %d lines into register 'a' (lines %d..%d)", #out, s_line, e_line),
+             vim.log.levels.INFO)
 end, { noremap = true, silent = true, desc = "Yank every other line from visual selection into register a" })
 
 -- fallback detect_int_type only if you don't already define one in your config
