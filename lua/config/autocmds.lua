@@ -18,3 +18,4 @@ vim.api.nvim_create_autocmd({"BufWinEnter", "VimEnter", "FileType"}, {
 		vim.wo.foldenable = true
 	end,
 });
+

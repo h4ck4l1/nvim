@@ -164,7 +164,7 @@ end, {desc = "Document Variables"})
 
 -- Visual-mode only: yank every other line from the visual selection into register 'a'
 -- Yank every-other line from a visual selection into register 'a' (robust)
-vim.keymap.set('x', '<leader>ya', function()
+km('x', '<leader>ya', function()
   -- check current mode (should be visual when invoked)
   local mode = vim.fn.mode()
 
@@ -327,3 +327,7 @@ end
 -- mapping (normal mode): <leader>rg to generate getter from current line
 km({'n'}, '<leader>rg', function() generate_rust_getter() end,
   { noremap = true, silent = true, desc = "Generate Rust getter from field declaration (replace line)" })
+
+
+-- Add a custom keybinding to toggle the colorscheme
+vim.api.nvim_set_keymap("n", "<leader>tt", ":CyberdreamToggleMode<CR>", { noremap = true, silent = true })
