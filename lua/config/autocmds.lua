@@ -11,11 +11,11 @@
 --
 
 
-vim.api.nvim_create_autocmd({"BufWinEnter", "VimEnter", "FileType"}, {
-	pattern = "*",
-	callback = function ()
-		vim.wo.foldmethod = "manual"
-		vim.wo.foldenable = true
-	end,
-});
+-- vim.api.nvim_create_autocmd({"BufWinEnter", "VimEnter", "FileType"}, {
+-- 	pattern = "*",
+-- 	callback = function ()
+-- 		vim.wo.foldmethod = "manual"
+-- 		vim.wo.foldenable = true
+-- 	end,
+-- });
 
