@@ -2,11 +2,15 @@ return {
 	{
 		"snacks.nvim",
 		opts = {
+			-- enable the explorer top-level options so it will auto-close on open
+			explorer = {
+				enabled = true,
+				auto_close = true,      -- close the picker after opening a file
+				jump = { close = true },-- ensure jumps (open file) close the picker
+			},
 			picker = {
 				sources = {
 					explorer = {
-						auto_close = true,
-						jump = { close = true },
 						layout = {
 							preview = true, -- enable preview
 							layout = {
