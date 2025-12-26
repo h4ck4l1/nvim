@@ -11,6 +11,7 @@ opt.softtabstop = 4   -- 1 previous
 opt.autoindent = true
 vim.g.autoformat = false
 vim.g.minipairs_disable = true
+opt.cursorline = false
 
 
 local ok, lspconfig = pcall(require, "lspconfig")
