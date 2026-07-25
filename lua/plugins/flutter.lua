@@ -11,11 +11,8 @@ return {
 			local capabilities = require('blink.cmp').get_lsp_capabilities()
 
 			require("flutter-tools").setup({
-				default_run_args = {
-					"--dart-define-from-file=env.dev.json"
-				},
 				dev_log = {
-					enabled = true,
+					enabled = false,
 					open_cmd = "tabedit"
 				},
 				lsp = {

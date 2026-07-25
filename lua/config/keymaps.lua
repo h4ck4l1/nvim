@@ -688,4 +688,4 @@ end
 
 vim.keymap.set("n", "<leader>qD", trash_current_file, { desc = "Trash current file and quit" })
 
-
+vim.keymap.set("n", "<leader>fa", "<cmd>FlutterAttach --dart-define-from-file=env.dev.json<cr>", { desc = "Flutter Attach With Env"})
