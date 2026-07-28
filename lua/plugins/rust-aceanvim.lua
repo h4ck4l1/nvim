@@ -14,9 +14,7 @@ return {
 					},
 					settings = {
 						['rust-analyzer'] = {
-							cachePriming = {
-								enable = false
-							},
+							cachePriming = { enable = false },
 							procMacro = {
 								enable = true,
 								ignored = {
@@ -46,9 +44,7 @@ return {
 							cargo = {
 								allFeatures = true,
 								loadOutDirsFromCheck = true,
-								buildScripts = {
-									enable = true,
-								},
+								buildScripts = { enable = true },
 							},
 							checkOnSave = {
 								command = "clippy",
@@ -70,5 +66,20 @@ return {
 				},
 			}
 		end
+	},
+	{
+		"statiolake/rust-import.nvim",
+		ft = "rust",
+		dependencies = { "mrcjkb/rustaceanvim" },
+		config = function()
+			require("rust-import").setup()
+		end,
+		keys = {
+			{
+				"<leader>cb",
+				"<cmd>RustOrganizeImports<cr>",
+				desc = "Source Action (Clean & Organize Imports)"
+			}
+		}
 	}
 }
