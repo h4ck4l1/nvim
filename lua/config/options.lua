@@ -13,7 +13,7 @@ opt.autoindent = true
 
 
 vim.g.autoformat = false
-vim.g.minipairs_disable = true
+-- vim.g.minipairs_disable = true
 -- vim.g.lazyvim_lsp_inlay_hints = false
 
 
