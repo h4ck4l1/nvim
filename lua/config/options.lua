@@ -25,5 +25,5 @@ opt.fixeol = true
 opt.cursorline = false
 
 vim.opt.autoread = true
-
+vim.opt.inccommand = "nosplit"
 
