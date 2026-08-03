@@ -13,7 +13,33 @@ return {
 				color_devicons = true,
 				open_cmd = "vnew",    -- or "tabnew", or a lua function
 				live_update = false,  -- set true to auto-update on writes
-				-- keep other defaults unless you need to tweak mappings or engines
+				mapping = {
+					['toggle_ignore_case'] = {
+						map = "ti",
+						cmd = "<cmd>lua require('spectre').change_options('ignore-case')<CR>",
+						desc = "toggle ignore case"
+					},
+					['toggle_ignore_hidden'] = {
+						map = "th",
+						cmd = "<cmd>lua require('spectre').change_options('hidden')<CR>",
+						desc = "toggle search hidden"
+					},
+					['toggle_fixed_strings'] = {
+						map = "tf",
+						cmd = "<cmd>lua require('spectre').change_options('fixed-strings')<CR>",
+						desc = "toggle fixed strings (literal)"
+					},
+					['toggle_word_regexp'] = {
+						map = "tw",
+						cmd = "<cmd>lua require('spectre').change_options('word-regexp')<CR>",
+						desc = "toggle word regexp"
+					},
+					['toggle_no_ignore'] = {
+						map = "tg",
+						cmd = "<cmd>lua require('spectre').change_options('no-ignore')<CR>",
+						desc = "toggle search gitignored"
+					}
+				}
 			})
 		end,
 	},
