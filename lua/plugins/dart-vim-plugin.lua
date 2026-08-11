@@ -1,13 +1,14 @@
-return {
-	{
-		"dart-lang/dart-vim-plugin",
-		ft = { "dart" },
-		init = function ()
-			vim.g.dart_format_on_save = 0
-			-- Overrides options.lua inside Dart buffers: sets expandtab=true and shiftwidth=2
-			vim.g.dart_style_guide = 2
-			-- Correctly indents trailing-comma bracket layouts with 2 spaces instead of 4
-			vim.g.dart_trailing_comma_indent = true
-		end
-	},
-}
+return {}
+-- return {
+-- 	{
+-- 		"dart-lang/dart-vim-plugin",
+-- 		ft = { "dart" },
+-- 		init = function ()
+-- 			vim.g.dart_format_on_save = 0
+-- 			-- Overrides options.lua inside Dart buffers: sets expandtab=true and shiftwidth=2
+-- 			vim.g.dart_style_guide = 2
+-- 			-- Correctly indents trailing-comma bracket layouts with 2 spaces instead of 4
+-- 			vim.g.dart_trailing_comma_indent = true
+-- 		end
+-- 	},
+-- }
