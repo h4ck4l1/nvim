@@ -24,7 +24,7 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.shiftwidth = 2      -- Indent steps are 2 spaces
     vim.opt_local.softtabstop = 2     -- Backspace deletes 2 spaces
     -- Overrides global autoformat option for the current buffer
-    vim.b.autoformat = true 
+    vim.b.autoformat = false
   end,
 })
 
