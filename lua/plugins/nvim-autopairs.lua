@@ -8,8 +8,12 @@ return {
 			check_ts = true
 		},
 	},
-	-- {
-	-- 	"nvim-mini/mini.pairs",
-	-- 	enabled = false
-	-- }
+	{
+		"nvim-mini/mini.pairs",
+		opts = {
+			skip_unbalanced = false,
+			skip_ts = {},
+			skip_next = [=[[%w%%%\'%[%%.%`%$]]=]
+		}
+	}
 }
