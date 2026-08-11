@@ -4,12 +4,12 @@ return {
 		opts = {
 			keywords = {
 				STEP = {
-					icon = "▶️", -- Forward flow
+					icon = "✦",
 					color = "info",
 					alt = { "step", "Step" }
 				},
 				DONE = {
-					icon = "✅", -- Completed check
+					icon = "✔",
 					color = "test",
 					alt = { "Done", "done" }
 				}
