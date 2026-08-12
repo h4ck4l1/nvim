@@ -126,3 +126,9 @@ sops updatekeys <path_to .env.enc>
 ```
 
 ### Now push this repo with some changes and you will see a .env decrypted file and .env.enc encrypted file in your remote machine
+
+### For a newly cloned Repo to decrypt the .env file do this:
+
+```
+sops --decrypt --input-type dotenv --output-type dotenv --output backend/.env backend/.env.enc
+```
