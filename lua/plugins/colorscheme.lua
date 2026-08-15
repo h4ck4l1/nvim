@@ -23,7 +23,7 @@ return {
 					bg = "#0f1117",       -- Dark blue/black background
 					fg = "#7aa2f7",       -- Soft light blue/white text
 					gray = "#3b4261",     -- Darker gray for comments
-					red = "#1a86ad",      -- Soft red
+					red = "#1a86ad",      -- Soft red (Actually teal, used for variables)
 					green = "#9ece6a",    -- Pastel green
 					yellow = "#e0af68",   -- Soft yellow
 					blue = "#8f6ff7",     -- Bright blue
@@ -42,13 +42,23 @@ return {
 					CursorLineNr = { fg = "#7dcfff", style = "bold" },
 					LineNr = { fg = "#3b4261" },
 
-					-- 1. Make standard variable references (like `tracing`) standard text color (#c0caf5)
+					-- 1. Make standard variable references standard text color (#c0caf5)
 					["@variable"] = { fg = "${fg}" },
 					["@lsp.type.variable"] = { fg = "${fg}" },
 
-					-- 2. Keep variable declarations (like `webSocketUrl`) highlighted in your custom cyan (${red})
+					-- 2. Keep variable declarations highlighted in your custom cyan (${red})
 					["@lsp.typemod.variable.declaration"] = { fg = "${red}" },
 					["@lsp.typemod.variable.declaration.dart"] = { fg = "${red}" },
+
+					-- ==========================================
+					-- 3. EXPLICITLY MAKE ERRORS ACTUAL RED
+					-- ==========================================
+					DiagnosticError = { fg = "#f7768e" }, -- Base error color
+					DiagnosticSignError = { fg = "#f7768e" }, -- Error sign in the gutter
+					DiagnosticVirtualTextError = { fg = "#f7768e" }, -- Virtual text at the end of the line
+					DiagnosticUnderlineError = { sp = "#f7768e", style = "undercurl" }, -- Squiggly underline
+					Error = { fg = "#f7768e" }, -- General editor errors
+					ErrorMsg = { fg = "#f7768e" }, -- Command line error messages
 				},
 
 				-- 3. Adjust general styles easily
@@ -74,8 +84,6 @@ return {
 			})
 
 			-- 4. Load your preferred variant
-			-- Available built-in variants:
-			-- "onedark" | "onelight" | "onedark_vivid" | "onedark_dark" | "vaporwave"
 			vim.cmd("colorscheme onedark") 
 		end,
 	},
