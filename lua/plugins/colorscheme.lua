@@ -21,9 +21,9 @@ return {
 				-- 1. Override the core color palette
 				colors = {
 					bg = "#0f1117",       -- Dark blue/black background
-					fg = "#c0caf5",       -- Soft light blue/white text
+					fg = "#94354e",       -- Soft light blue/white text
 					gray = "#3b4261",     -- Darker gray for comments
-					red = "#6FF3FF",      -- Soft red
+					red = "#1a86ad",      -- Soft red
 					green = "#9ece6a",    -- Pastel green
 					yellow = "#e0af68",   -- Soft yellow
 					blue = "#7aa2f7",     -- Bright blue
