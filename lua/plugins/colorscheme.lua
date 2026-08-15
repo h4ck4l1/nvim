@@ -23,7 +23,7 @@ return {
 					bg = "#0f1117",       -- Dark blue/black background
 					fg = "#c0caf5",       -- Soft light blue/white text
 					gray = "#3b4261",     -- Darker gray for comments
-					red = "#f7768e",      -- Soft red
+					red = "#6FF3FF",      -- Soft red
 					green = "#9ece6a",    -- Pastel green
 					yellow = "#e0af68",   -- Soft yellow
 					blue = "#7aa2f7",     -- Bright blue
@@ -34,13 +34,21 @@ return {
 
 				-- 2. Customize how specific code elements are styled
 				highlights = {
-					Comment = { fg = "#565f89", style = "italic" }, -- Make comments darker and italic
-					Keyword = { fg = "#bb9af7", style = "bold" },   -- Make keywords (function, if, etc) bold purple
-					Function = { fg = "#7aa2f7" },                   -- Function names bright blue
-					String = { fg = "#9ece6a" },                    -- Strings pastel green
-					Constant = { fg = "#ff9e64" },                  -- Constants (numbers, true/false) orange
-					CursorLineNr = { fg = "#7dcfff", style = "bold" }, -- Line number color
-					LineNr = { fg = "#3b4261" },                     -- Other line numbers
+					Comment = { fg = "#565f89", style = "italic" }, 
+					Keyword = { fg = "#bb9af7", style = "bold" },   
+					Function = { fg = "#7aa2f7" },                   
+					String = { fg = "#9ece6a" },                    
+					Constant = { fg = "#ff9e64" },                  
+					CursorLineNr = { fg = "#7dcfff", style = "bold" }, 
+					LineNr = { fg = "#3b4261" },                     
+
+					-- 1. Make standard variable references (like `tracing`) standard text color (#c0caf5)
+					["@variable"] = { fg = "${fg}" },
+					["@lsp.type.variable"] = { fg = "${fg}" },
+
+					-- 2. Keep variable declarations (like `webSocketUrl`) highlighted in your custom cyan (${red})
+					["@lsp.typemod.variable.declaration"] = { fg = "${red}" },
+					["@lsp.typemod.variable.declaration.dart"] = { fg = "${red}" },
 				},
 
 				-- 3. Adjust general styles easily
