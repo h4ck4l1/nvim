@@ -12,8 +12,12 @@ return {
 					icon = "✔",
 					color = "test",
 					alt = { "Done", "done" }
-				}
-			},
+				},
+				PROG = {
+					icon = "◐",
+					color = "warning",
+					alt = { "Prog", "prog", "WIP", "wip" },
+				},
 			search = {
 				-- Allows todo-comments to dynamically swap in the keywords we request
 				pattern = [[\b(KEYWORDS):]],
