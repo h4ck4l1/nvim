@@ -36,3 +36,5 @@ opt.cursorline = false
 vim.opt.autoread = true
 vim.opt.inccommand = "nosplit"
 
+-- Ensure Neovim explicitly saves folds, cursor position, and the current directory in its views
+vim.opt.viewoptions = { "folds", "cursor", "curdir" }

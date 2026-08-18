@@ -30,6 +30,39 @@ vim.filetype.add({
 })
 
 
+local view_group = vim.api.nvim_create_augroup("PersistentFolds", { clear = true })
+
+-- Save the view (folds, cursor position, etc.) when leaving a buffer or window
+vim.api.nvim_create_autocmd({ "BufWinLeave", "BufWritePost", "WinLeave" }, {
+  group = view_group,
+  desc = "Save view with mkview for real files",
+  callback = function(args)
+    if vim.b[args.buf].view_activated then
+      vim.cmd.mkview({ mods = { emsg_silent = true } })
+    end
+  end,
+})
+
+-- Load the view when opening a buffer
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  group = view_group,
+  desc = "Load view with loadview for real files",
+  callback = function(args)
+    if not vim.b[args.buf].view_activated then
+      local filetype = vim.api.nvim_get_option_value("filetype", { buf = args.buf })
+      local buftype = vim.api.nvim_get_option_value("buftype", { buf = args.buf })
+      local ignore_filetypes = { "gitcommit", "gitrebase" }
+
+      -- Ensure we only do this for standard files (not Neo-tree, Telescope, etc.)
+      if buftype == "" and filetype and filetype ~= "" and not vim.tbl_contains(ignore_filetypes, filetype) then
+        vim.b[args.buf].view_activated = true
+        vim.cmd.loadview({ mods = { emsg_silent = true } })
+      end
+    end
+  end,
+})
+
+
 -- local float_win = nil
 -- local float_buf = nil
 -- local home_pos = nil
