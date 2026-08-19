@@ -131,4 +131,6 @@ sops updatekeys <path_to .env.enc>
 
 ```
 sops --decrypt --input-type dotenv --output-type dotenv --output backend/.env backend/.env.enc
+
+git config core.hooksPath .githooks
 ```
