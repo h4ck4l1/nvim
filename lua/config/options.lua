@@ -24,35 +24,69 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.shiftwidth = 2
     vim.opt_local.softtabstop = 2
     vim.b.autoformat = false
+
     vim.schedule(function()
       local current_expr = vim.bo.indentexpr
       if current_expr ~= "" and not current_expr:match("DartSmartIndent") then
         vim.b.orig_indentexpr = current_expr
+
         _G.DartSmartIndent = function()
-          -- 1. Ask Treesitter what it thinks (It's perfect for Widgets!)
           local ok, ts_indent = pcall(vim.fn.eval, vim.b.orig_indentexpr)
-          if not ok then ts_indent = vim.fn.cindent(vim.v.lnum) end
+          if not ok or type(ts_indent) ~= "number" then
+            ts_indent = vim.fn.cindent(vim.v.lnum)
+          end
+
           local prev_lnum = vim.fn.prevnonblank(vim.v.lnum - 1)
           if prev_lnum == 0 then return ts_indent end
-          local prev_line = vim.fn.getline(prev_lnum)
+
           local current_line = vim.fn.getline(vim.v.lnum)
-          -- 2. If this line is a closing '}', cindent calculates it perfectly.
-          if current_line:match("^%s*}") then
-            return vim.fn.cindent(vim.v.lnum)
+
+          -- 1. THE ULTIMATE FIX: If we are on a closing bracket line, 
+          -- MANUALLY find its matching opening line and copy its indentation!
+          local closing_match = current_line:match("^%s*([%)%}%]])")
+          if closing_match then
+            local opening_map = { [")"] = "(", ["}"] = "{", ["]"] = "[" }
+            local open_bracket = opening_map[closing_match]
+
+            -- Save view to temporarily move the cursor without you noticing
+            local saved_view = vim.fn.winsaveview()
+
+            -- Move cursor to the exact closing bracket on this line
+            local col = string.find(current_line, closing_match, 1, true)
+            vim.fn.cursor(vim.v.lnum, col)
+
+            -- Find the matching opening bracket using Vim's rock-solid syntax engine
+            local open_lnum = vim.fn.searchpair(
+              '\\V' .. open_bracket, '', '\\V' .. closing_match, 'bW'
+            )
+
+            local correct_indent = ts_indent
+            if open_lnum > 0 then
+              correct_indent = vim.fn.indent(open_lnum)
+            end
+
+            -- Restore cursor and return the matching line's indentation
+            vim.fn.winrestview(saved_view)
+            return correct_indent
           end
-          -- 3. Check if the previous line opened a block
-          -- We strip trailing comments to safely find the '{'
+
+          -- 2. Safety Net: Check if the previous line opened a block
+          local prev_line = vim.fn.getline(prev_lnum)
           local prev_code = prev_line:gsub("//.*", ""):gsub("%s+$", "")
-          if prev_code:match("{$") then
+
+          -- If previous line ended in {, (, or [
+          if prev_code:match("[%(%{%[]$") then
             local prev_indent = vim.fn.indent(prev_lnum)
-            -- If Treesitter hit its bug and failed to indent, we FORCE it forward.
+            -- If Treesitter hit its bug and didn't indent, we FORCE it forward
             if ts_indent <= prev_indent then
               return prev_indent + vim.fn.shiftwidth()
             end
           end
-          -- 4. For everything else (Widgets, lists, etc), strictly trust Treesitter!
+
+          -- 3. For standard lines inside a block, trust Treesitter!
           return ts_indent
         end
+
         vim.bo.indentexpr = "v:lua.DartSmartIndent()"
       end
     end)
