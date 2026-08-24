@@ -79,7 +79,7 @@ return {
 				},
 
 				options = {
-					transparency = false,
+					transparency = true,
 				}
 			})
 
