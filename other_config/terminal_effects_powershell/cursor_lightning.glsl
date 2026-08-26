@@ -4,12 +4,12 @@
 // -- CONFIGURATION --
 const vec3 BOLT_COLOR = vec3(1.00, 0.82, 0.72);
 const vec3 GLOW_COLOR = vec3(0.74, 0.00, 0.00);
-const float DURATION = 0.7;              // lifetime of each zap, in seconds
-const float THRESHOLD_MIN_DISTANCE = 3.0; // cursor widths before a zap is drawn
+const float DURATION = 2.0;              // lifetime of each zap, in seconds
+const float THRESHOLD_MIN_DISTANCE = 1.0; // cursor widths before a zap is drawn
 const float JAGGEDNESS = 0.1;           // sideways displacement relative to bolt length
 const float CORE_WIDTH = 1.15;            // pixels
 const float GLOW_WIDTH = 5.5;             // pixels
-const int BOLT_SEGMENTS = 20;
+const int BOLT_SEGMENTS = 30;
 
 float hash11(float p) {
     p = fract(p * 0.1031);
