@@ -4,12 +4,12 @@
 // -- CONFIGURATION --
 const vec3 BOLT_COLOR = vec3(1.00, 0.82, 0.72);
 const vec3 GLOW_COLOR = vec3(0.74, 0.00, 0.00);
-const float DURATION = 1.0;              // lifetime of each zap, in seconds
-const float THRESHOLD_MIN_DISTANCE = 1.5; // cursor widths before a zap is drawn
-const float JAGGEDNESS = 0.085;           // sideways displacement relative to bolt length
+const float DURATION = 0.7;              // lifetime of each zap, in seconds
+const float THRESHOLD_MIN_DISTANCE = 3.0; // cursor widths before a zap is drawn
+const float JAGGEDNESS = 0.1;           // sideways displacement relative to bolt length
 const float CORE_WIDTH = 1.15;            // pixels
 const float GLOW_WIDTH = 5.5;             // pixels
-const int BOLT_SEGMENTS = 12;
+const int BOLT_SEGMENTS = 20;
 
 float hash11(float p) {
     p = fract(p * 0.1031);
@@ -25,7 +25,7 @@ float segmentDistance(vec2 p, vec2 a, vec2 b) {
     return length(p - (a + ab * t));
 }
 
-// A point on a piecewise-linear bolt. Endpoints stay fixed while interior this is first time this is happening
+// A point on a piecewise-linear bolt. Endpoints stay fixed while interior 
 // nodes are displaced perpendicular to the cursor's direction of travel.
 vec2 boltPoint(vec2 a, vec2 b, float t, float seed) {
     vec2 delta = b - a;
@@ -85,8 +85,16 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         + vec2(iCurrentCursor.z * 0.5, -iCurrentCursor.w * 0.5);
     vec2 previousCenter = iPreviousCursor.xy
         + vec2(iPreviousCursor.z * 0.5, -iPreviousCursor.w * 0.5);
+    
     float travel = length(currentCenter - previousCenter);
-    float minimumTravel = iCurrentCursor.z * THRESHOLD_MIN_DISTANCE;
+    
+    // -- THE FIX IS HERE --
+    // Instead of using only iCurrentCursor.z (which gets very small in insert mode),
+    // we take the maximum of the width (z) or roughly half the height (w * 0.5).
+    // This guarantees the threshold behaves as if the cursor is a full block,
+    // ignoring keystroke-jumps even when the cursor is a thin line.
+    float effectiveCharWidth = max(iCurrentCursor.z, iCurrentCursor.w * 0.5);
+    float minimumTravel = effectiveCharWidth * THRESHOLD_MIN_DISTANCE;
 
     float age = clamp((iTime - iTimeCursorChange) / DURATION, 0.0, 1.0);
     if (travel > minimumTravel && age < 1.0) {
