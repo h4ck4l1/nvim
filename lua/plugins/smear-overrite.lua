@@ -7,7 +7,7 @@ return {
 		legacy_computing_symbols_support = false,
 		smear_insert_mode = true,
 		stiffness = 0.5,
-		trailing_stiffness = 0.5,
+		trailing_stiffness = 0.8,
 		matrix_pixel_threshold = 0.5,
 	},
 }
