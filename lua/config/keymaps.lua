@@ -528,7 +528,13 @@ end, { desc = "Fill Enum Variants from LSP" })
 vim.keymap.set("n", "<leader>se", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Document Symbols"})
 vim.keymap.set("n", "<leader>sE", "<cmd>Telescope current_buffer_fuzzy_find<cr>", { desc = "Buffer Find"})
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], {desc = "Exit Terminal Mode"})
-vim.keymap.set("n", "<leader>tt", "<cmd>terminal powershell.exe<cr>", {desc = "Open Powershell Terminal"})
+
+local is_windows = vim.fn.has("win32") == 1
+
+local shell = is_windows and "powershell.exe" or "bash"
+local desc = is_windows and "Open PowerShell Terminal" or "Open Bash Terminal"
+
+vim.keymap.set("n", "<leader>tt", "<cmd>terminal " .. shell .. "<cr>", { desc = desc })
 
 
 -- Shared helper to query LSP and parse a struct's fields
