@@ -78,7 +78,8 @@ float df(vec2 p) {
   return d;
 }
 
-vec3 effect(vec2 p, vec2 pp) {
+// Changed to return vec4 so we can pass transparency (alpha) to mainImage!
+vec4 effect(vec2 p, vec2 pp) {
   g_rot0 = ROT(0.1*TIME); 
   g_rot1 = ROT(0.123*TIME);
 
@@ -88,51 +89,74 @@ vec3 effect(vec2 p, vec2 pp) {
   const vec3 bcol0 = HSV2RGB(FG_COLOR_HSV);
   const vec3 bcol1 = HSV2RGB(BG_COLOR_HSV);
   
-  vec3 col = 0.1*bcol0;
-  col += bcol1/sqrt(abs(d));
-  col += bcol0*smoothstep(aa, -aa, (d-0.001));
-  col *= smoothstep(1.5, 0.5, length(pp));
+  // 1. THE SHAPE: This creates the solid, sharp "flowers" (1.0 inside, 0.0 outside)
+  float shape = smoothstep(aa, -aa, (d - 0.001));
   
-  return col;
+  // 2. THE GLOW: Replaced the infinite noise with a tight glow that stops completely
+  // at a distance of 0.15. This removes the green background haze entirely!
+  float glow = smoothstep(0.15, 0.0, abs(d)); 
+  
+  vec3 col = bcol0 * shape;           // Solid flower color
+  col += (bcol1 * glow * 1.5);        // Subtle green edge glow around the flowers
+  
+  // Vignette effect for the edges of the widget
+  float vignette = smoothstep(1.5, 0.5, length(pp));
+  col *= vignette;
+  
+  // 3. TRANSPARENCY: Solid shapes are 100% opaque, glow is semi-transparent, empty space is 0%
+  float alpha = clamp(shape + (glow * 0.8), 0.0, 1.0) * vignette;
+  
+  return vec4(col, alpha);
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-  // 1. FIX Y-AXIS: Calculate distance from Top-Right 
-  float distX = RESOLUTION.x - fragCoord.x; // Distance from right
-  float distY = fragCoord.y;                // Distance from top (Y is inverted in your terminal)
+  vec2 uv = fragCoord / RESOLUTION.xy;
+  vec4 termText = texture(iChannel0, uv); 
+
+  float distX = RESOLUTION.x - fragCoord.x;
+  float distY = fragCoord.y;                
   
   float size = RESOLUTION.y * WIDGET_SCALE;
   
-  // 2. THE FIX: If outside the widget, abort shading entirely.
-  // This prevents the shader from drawing a black box over your terminal text!
   if (distX > size || distY > size) {
-      discard;
+      fragColor = termText;
+      return;
   }
   
-  // 3. Setup local coordinates so the fractal doesn't stretch or break
   vec2 localCoord = vec2(size - distX, size - distY);
   vec2 localRes = vec2(size, size);
   
   vec2 q = localCoord / localRes;
   vec2 p = -1. + 2. * q;
-  vec2 pp = p;
+  vec2 p_copy = p;
   
   p.x *= localRes.x / localRes.y; 
   
-  vec3 col = effect(p, pp);
+  // 4. Get the fractal color AND its exact transparency mask
+  vec4 fractalData = effect(p, p_copy);
+  vec3 col = fractalData.rgb;
+  float fractalAlpha = fractalData.a; 
+  
   col = aces_approx(col);
   col = sqrt(col);
   
-  // 4. Smoothly fade the boundary edges of the widget
+  // Fade the boundaries of the widget box
   float edgeFade = 0.15 * size; 
   float alphaX = smoothstep(size, size - edgeFade, distX);
   float alphaY = smoothstep(size, size - edgeFade, distY);
   
-  float luma = dot(col, vec3(0.299, 0.587, 0.114)); 
-  float alpha = alphaX * alphaY * mix(luma * 1.5, 1.0, DARK_OPACITY);
+  // Combine all the transparencies together
+  float finalAlpha = alphaX * alphaY * fractalAlpha;
   
-  // 5. Blend the faded edges into the terminal background color
-  vec3 finalColor = mix(TERMINAL_BG_COLOR, col, clamp(alpha, 0.0, 1.0));
+  // 5. LAYER 1: Blend the fractal directly over the raw terminal background!
+  // Where finalAlpha is 0 (the empty space), it shows your pure terminal background.
+  vec3 outputColor = mix(termText.rgb, col, finalAlpha);
   
-  fragColor = vec4(finalColor, 1.0);
+  // 6. LAYER 2: Ensure the text is written ON TOP of the flowers
+  float textLuma = dot(termText.rgb, vec3(0.299, 0.587, 0.114));
+  float isText = smoothstep(0.01, 0.08, textLuma); 
+  
+  outputColor = mix(outputColor, termText.rgb, isText);
+  
+  fragColor = vec4(outputColor, 1.0);
 }
