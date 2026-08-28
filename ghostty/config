@@ -1,0 +1,63 @@
+
+# ==============================================================================
+# Font Configuration (FiraCode Nerd Font Mono)
+# ==============================================================================
+font-family = "FiraCode Nerd Font Mono"
+font-size = 15
+
+# All HarfBuzz/OpenType character variants & stylistic sets from your WezTerm config
+font-feature = cv01, cv02, cv10, cv11, cv14, cv16, cv17, cv18, cv29, cv30, cv31, ss01, ss03, ss04, ss05
+
+# Matches WezTerm's `cell_width = 0.9` (10% narrower)
+adjust-cell-width = -10%
+
+# ==============================================================================
+# Theme & Colors
+# ==============================================================================
+# Built-in TokyoNight theme (Ghostty includes TokyoNight, TokyoNight Storm, etc.)
+theme = "TokyoNight"
+
+# ==============================================================================
+# Window & Padding
+# ==============================================================================
+# Matches `window_decorations = "NONE"`
+window-decoration = false
+
+# Matches `window_padding: left/right = 0, top = 7, bottom = 0`
+window-padding-x = 0
+window-padding-y = 0
+window-padding-balance = false
+
+# Matches startup fullscreen
+# fullscreen = true
+maximize = true
+
+# Matches `window_close_confirmation = "NeverPrompt"`
+confirm-close-surface = false
+
+# ==============================================================================
+# Background & Blur
+# ==============================================================================
+# Adjust background transparency and blur (similar to Acrylic)
+background-opacity = 0.93
+background-blur = true
+
+# Optional: Background Image (Uncomment and set your Linux/WSL image path if desired)
+# background-image = "/path/to/your/image.png"
+# background-image-fit = cover
+background-image-opacity = 0.93
+custom-shader = ~/.config/nvim/other_config/terminal_effects_powershell/cursor_lightning.glsl
+custom-shader = ~/.config/nvim/other_config/terminal_effects_powershell/ingame-crt-cursor.glsl
+custom-shader = ~/.config/nvim/other_config/terminal_effects_powershell/windows-terminal-shader-ghostty.glsl
+
+# ==============================================================================
+# Keybindings & General
+# ==============================================================================
+# Matches Ctrl+Shift+T to spawn a new tab
+keybind = ctrl+shift+t=new_tab
+working-directory = home
+tab-inherit-working-directory = false
+window-inherit-working-directory = false
+
+# System bell
+bell-features = system
