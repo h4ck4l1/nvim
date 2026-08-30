@@ -698,3 +698,20 @@ vim.keymap.set("n", "<leader>fa", "<cmd>FlutterAttach --dart-define-from-file=en
 
 
 vim.keymap.set("n", "<leader>cA", "<cmd>RustOrganizeImports<cr>", {desc = "Source Code Action Rust Organize Imports", remap = true})
+
+
+vim.keymap.set("n", "<leader>kv", function()
+  local file = vim.api.nvim_buf_get_name(0)
+  if file == "" then
+    vim.notify("No file in current buffer", vim.log.levels.WARN)
+    return
+  end
+
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+
+  -- Passes +<line> to jump straight to your current cursor position
+  local cmd = string.format("ghostty -e nvim -R -M +%d %s &", line, vim.fn.shellescape(file))
+
+  os.execute(cmd)
+end, { desc = "Open current file in read-only Ghostty at cursor position" })
+

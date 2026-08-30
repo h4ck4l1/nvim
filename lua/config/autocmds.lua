@@ -1,13 +1,19 @@
-vim.api.nvim_create_autocmd(
-	{ "FocusGained", "BufEnter", "CursorHold" },
-	{
-		callback = function ()
-			if vim.fn.getcmdwintype() == "" then
-				vim.cmd("checktime")
-			end
-		end
-	}
-)
+-- vim.api.nvim_create_autocmd(
+-- 	{ "FocusGained", "BufEnter", "CursorHold" },
+-- 	{
+-- 		callback = function ()
+-- 			if vim.fn.getcmdwintype() == "" then
+-- 				vim.cmd("checktime")
+-- 			end
+-- 		end
+-- 	}
+-- )
+
+-- Auto reload files when changed on disk (e.g. from another Neovim instance)
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = "*",
+})
 
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "dart",
