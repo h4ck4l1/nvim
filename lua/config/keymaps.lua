@@ -708,10 +708,18 @@ vim.keymap.set("n", "<leader>kv", function()
   end
 
   local line = vim.api.nvim_win_get_cursor(0)[1]
+  local cwd = vim.fn.getcwd()
 
-  -- Passes +<line> to jump straight to your current cursor position
-  local cmd = string.format("ghostty -e nvim -R -M +%d %s &", line, vim.fn.shellescape(file))
-
-  os.execute(cmd)
-end, { desc = "Open current file in read-only Ghostty at cursor position" })
-
+  vim.system({
+    "ghostty",
+    "--working-directory=" .. cwd,
+    "-e", "nvim",
+    -- Notice we removed -M entirely here because your autocmd handles it better!
+    "-R",
+    "+" .. tostring(line),
+    file
+  }, {
+    detach = true,
+    env = { READONLY_MODE = "1" } -- This triggers your awesome autocmd!
+  })
+end, { desc = "Open current file in strict read-only Ghostty at cursor position" })

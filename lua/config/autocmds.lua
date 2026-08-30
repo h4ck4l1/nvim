@@ -15,6 +15,19 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
   pattern = "*",
 })
 
+-- Strict read-only mode: only lock actual source code files, ignore UI/explorer buffers
+if vim.env.READONLY_MODE == "1" then
+  vim.api.nvim_create_autocmd("BufReadPost", {
+    callback = function(ev)
+      -- buftype == "" ensures we only lock real files, not UI/scratch buffers
+      if vim.bo[ev.buf].buftype == "" then
+        vim.bo[ev.buf].modifiable = false
+        vim.bo[ev.buf].readonly = true
+      end
+    end,
+  })
+end
+
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "dart",
     callback = function()
