@@ -6,5 +6,5 @@ debug
 foo.*
 *.log
 data
-penpot/.env
 services/userlist.txt
+other_config/.bashrc

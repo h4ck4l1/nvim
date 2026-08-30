@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    export PATH="$PATH:$USERPROFILE/AppData/Local/Microsoft/WinGet/Links"
+fi
+
+if [ -f other_config/.bashrc ]; then
+    if [ ! -f other_config/.bashrc.enc ] || [ ! -s other_config/.bashrc.enc ] || [ other_config/.bashrc -nt other_config/.bashrc.enc ]; then
+        echo "🔒 SOPS: Syncing changes from other_config/.bashrc to other_config/.bashrc.enc..."
+
+        if sops --encrypt other_config/.bashrc > other_config/.bashrc.enc.tmp; then
+            mv other_config/.bashrc.enc.tmp other_config/.bashrc.enc
+            git add other_config/.bashrc.enc
+            echo "✅ SOPS: Successfully encrypted other_config/.bashrc.enc"
+        else
+            echo "❌ SOPS: Encryption failed! Checking configuration. Aborting commit."
+            rm -f other_config/.bashrc.enc.tmp
+            exit 1
+        fi
+    else
+        echo "ℹ️ SOPS: No changes detected in other_config/.bashrc. Skipping encryption."
+    fi
+fi

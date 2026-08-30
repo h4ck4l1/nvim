@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    export PATH="$PATH:$USERPROFILE/AppData/Local/Microsoft/WinGet/Links"
+fi
+
+if [ -f other_config/.bashrc.enc ]; then
+    echo "🔒 SOPS: Incoming repository updates detected. Synchronizing secrets..."
+
+    # Read the JSON envelope from SOPS and output the raw binary (your bash script)
+    if sops --decrypt --input-type json --output-type binary other_config/.bashrc.enc > other_config/.bashrc.tmp; then
+        mv other_config/.bashrc.tmp other_config/.bashrc
+
+        # VERY IMPORTANT: Backdate the decrypted file to match the encrypted one
+        # This prevents the pre-commit hook from infinitely re-encrypting it.
+        touch -r other_config/.bashrc.enc other_config/.bashrc
+
+        echo "✅ SOPS: Successfully decrypted and updated other_config/.bashrc"
+    else
+        echo "❌ SOPS: Auto-decryption failed! Please check your local age keypair setup."
+        rm -f other_config/.bashrc.tmp
+        exit 1
+    fi
+fi
