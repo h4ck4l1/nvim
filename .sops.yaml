@@ -1,5 +1,5 @@
 creation_rules:
-  - path_regex: \other_config\.bashrc(\.enc)?$
+  - path_regex: other_config/\.bashrc(\.enc)?$
     input_type: binary
     age: 
       - age1pqcgegwjs2uyjmrv5uzqsakfepl99et9fg7hfr845f80z79tx4hsu6a70t
