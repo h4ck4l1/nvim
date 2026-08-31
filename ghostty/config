@@ -21,7 +21,8 @@ theme = "TokyoNight"
 # Window & Padding
 # ==============================================================================
 # Matches `window_decorations = "NONE"`
-window-decoration = false
+window-decoration = true
+window-show-tab-bar = never
 
 # Matches `window_padding: left/right = 0, top = 7, bottom = 0`
 window-padding-x = 0
@@ -30,7 +31,7 @@ window-padding-balance = false
 
 # Matches startup fullscreen
 # fullscreen = true
-maximize = true
+maximize = false
 
 # Matches `window_close_confirmation = "NeverPrompt"`
 confirm-close-surface = false
