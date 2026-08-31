@@ -42,7 +42,7 @@ return {
 					CmpGhostText = { fg = "#8e9cce", style = "italic" },
 					BlinkCmpGhostText = { fg = "#8e9cce", style = "italic" },
 					CopilotSuggestion = { fg = "#8e9cce", style = "italic" },
-					LspInlayHint = { fg = "#344379", style = "italic" },
+					LspInlayHint = { fg = "#6a9fb9", style = "italic" },
 				},
 
 				-- 3. Adjust general styles easily
