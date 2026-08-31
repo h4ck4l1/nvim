@@ -21,7 +21,7 @@ theme = "TokyoNight"
 # Window & Padding
 # ==============================================================================
 # Matches `window_decorations = "NONE"`
-window-decoration = true
+window-decoration = false
 window-show-tab-bar = never
 
 # Matches `window_padding: left/right = 0, top = 7, bottom = 0`
