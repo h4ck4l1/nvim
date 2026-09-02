@@ -132,6 +132,7 @@ vim.g.autoformat = false
 opt.cursorline = false
 opt.autoread = true
 opt.inccommand = "nosplit"
+opt.guicursor = "n-v-c-sm:block,i-ci-ve:hor20,r-cr-o:hor20"
 
 -- File encoding & Views
 opt.fileformat = "unix"
