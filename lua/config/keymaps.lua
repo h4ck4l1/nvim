@@ -523,7 +523,81 @@ vim.keymap.set("n", "<leader>re", function()
     end
 end, { desc = "Fill Enum Variants from LSP" })
 
+vim.keymap.set("n", "<leader>rf", function()
+    local win = vim.api.nvim_get_current_win()
+    local cword = vim.fn.expand("<cword>")
+    -- 1. Grab the full WORD under cursor (e.g., 'ArticleContent::Column,')
+    local full_prefix = vim.fn.expand("<cWORD>")
+    -- Strip any trailing punctuation (like commas or brackets) from the end
+    full_prefix = full_prefix:gsub("[^%w_:]+$", "")
 
+    -- Extract base module: "ArticleContent::Column" -> "ArticleContent::Entity"
+    -- If no prefix is present (just "Column"), falls back to "Entity"
+    local base_module = full_prefix:match("^(.*)::[^:]+$")
+    local entity_prefix = base_module and (base_module .. "::Entity") or "Entity"
+
+    local clients = vim.lsp.get_clients({ bufnr = 0, name = "rust-analyzer" })
+    if #clients == 0 then clients = vim.lsp.get_clients({ bufnr = 0 }) end
+
+    local encoding = clients[1] and clients[1].offset_encoding or "utf-16"
+    -- 2. Ask rust-analyzer for the definition location
+    local params = vim.lsp.util.make_position_params(win, encoding)
+    local responses = vim.lsp.buf_request_sync(0, "textDocument/definition", params, 2000)
+    if not responses or vim.tbl_isempty(responses) then
+        vim.notify("No LSP definition found", vim.log.levels.WARN)
+        return
+    end
+
+    local result
+    for _, resp in pairs(responses) do
+        if resp.result and not vim.tbl_isempty(resp.result) then
+            result = resp.result[1] or resp.result
+            break
+        end
+    end
+
+    if not result then return end
+
+    -- 3. Load the target buffer (entity file) in the background
+    local uri = result.uri or result.targetUri
+    local bufnr = vim.uri_to_bufnr(uri)
+    vim.fn.bufload(bufnr)
+    local start_line = (result.range or result.targetSelectionRange).start.line
+    -- Read the next 50 lines from the entity file to parse the variants
+    local lines = vim.api.nvim_buf_get_lines(bufnr, start_line, start_line + 50, false)
+    local variants = {}
+    local inside_enum = false
+    for _, l in ipairs(lines) do
+        if l:match("enum%s+" .. cword) then
+            inside_enum = true
+        elseif inside_enum and l:match("^%s*}") then
+            break
+        elseif inside_enum then
+            -- Match standard SeaORM enum variants (Capitalized, ignoring macros)
+            local variant = l:match("^%s*([A-Z][%w_]*)%s*,?")
+            if variant then
+                -- Add variant formatted as: (ArticleContent::Entity, ArticleContent::Column::Variant),
+                table.insert(variants, string.format("(%s, %s::%s),", entity_prefix, full_prefix, variant))
+            end
+        end
+    end
+
+-- 4. Replace the current line and format
+    if #variants > 0 then
+        local r = vim.api.nvim_win_get_cursor(0)[1]
+        -- Replace the current line (r - 1 to r) with the variants array
+        vim.api.nvim_buf_set_lines(0, r - 1, r, false, variants)
+        -- Move the cursor back into the inserted block and format inside brackets
+        vim.api.nvim_win_set_cursor(0, { r, 0 })
+        pcall(function()
+            vim.cmd("normal! vi[=")
+        end)
+        vim.notify("Filled " .. #variants .. " (Entity, Column) pairs!", vim.log.levels.INFO)
+    else
+        vim.notify("Could not parse variants.", vim.log.levels.WARN)
+    end
+
+end, { desc = "Fill (Entity, Column) pairs from LSP" })
 
 vim.keymap.set("n", "<leader>se", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Document Symbols"})
 vim.keymap.set("n", "<leader>sE", "<cmd>Telescope current_buffer_fuzzy_find<cr>", { desc = "Buffer Find"})
